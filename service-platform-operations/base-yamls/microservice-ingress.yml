@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ${APP_NAME}
+  namespace: ${APP_NAMESPACE}
+spec:
+  rules:
+  - host: ${APP_NAME}.${APP_SUBDOMAIN}.${PLATFORM_BASE_DOMAIN}
+    http:
+      paths:
+      - backend:
+          serviceName: ${APP_NAME}
+          servicePort: ${APP_SVC_PORT}
+        path: /

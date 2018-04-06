@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.jade.samples</groupId>
+    <artifactId>platform-example-spring</artifactId>
+    <version>1.0.0</version>
+
+    <!-- The Spring Boot parent starter. The default starter. -->
+    <!-- Test comment -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.4.3.RELEASE</version>
+    </parent>
+
+    <dependencies>
+        <!-- Include the web starter, so we get Tomcat and all the web stuff. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- The test tools starter. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Developer tools, to get us useful things like automatic app restart, etc. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+	<properties>
+        <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
+        <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
+        <jdk.version>1.8</jdk.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Only unit tests are run by default. -->
+        <skip.integration.tests>true</skip.integration.tests>
+        <skip.unit.tests>false</skip.unit.tests>
+    </properties>
+
+
+    <build>
+        <plugins>
+            <!-- The Maven plugin creates an executable JAR -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+
+ <plugin>
+  <groupId>org.jacoco</groupId>
+  <artifactId>jacoco-maven-plugin</artifactId>
+  <version>0.7.5.201505241946</version>
+  <configuration>
+   <!--<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+   <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>-->
+  </configuration>
+  <executions>
+   <execution>
+    <id>jacoco-initialize</id>
+    <goals>
+     <goal>prepare-agent</goal>
+    </goals>
+   </execution>
+   <execution>
+    <id>jacoco-site</id>
+    <phase>package</phase>
+    <goals>
+     <goal>report</goal>
+    </goals>
+   </execution>
+  </executions>
+ </plugin>
+
+
+
+        </plugins>
+    </build>
+</project>

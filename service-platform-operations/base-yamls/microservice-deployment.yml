@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ${APP_NAME}
+  namespace: ${APP_NAMESPACE}
+spec:
+  replicas: ${APP_INST_CNT} # tells deployment to run ${APP_INST_CNT} pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: ${APP_NAME}-app
+    spec:
+      containers:
+        - name: ${APP_NAME}
+          image: ${APP_DCK_REPO_TAG}
+          ports:
+          - containerPort: ${APP_CONT_PORT}
+          env:
+            - name: K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: APP_NAME
+              value: ${APP_NAME}
+            - name: POD_INST_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ENV_STAGE
+              value: ${SHP_TARGET_ENV}
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: WKR_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: WKR_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: LOGGING_LEVEL
+              value: DEBUG
+            - name: JAVA_OPTS
+              value: "-Dappdynamics.http.proxyHost=192.168.99.1 -Dappdynamics.http.proxyPort=3218"
+
+# this uses the shared docker registry
