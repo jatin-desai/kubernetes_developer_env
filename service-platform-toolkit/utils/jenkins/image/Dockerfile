@@ -1,12 +1,14 @@
-# docker build -t jatindesai/jenkins:2.60.3 .
+# docker build -t jatindesai/jenkins:lts-alpine .
 # adding jenkins user with sudo access to be able to access docker cli
+# adding kubectl
+# adding jenkins plugins
 
-FROM jenkins:2.60.3
+FROM jenkins/jenkins:lts-alpine
 MAINTAINER Jatin Desai <jatindesai@yahoo.com>
 
 USER root
-RUN apt-get update \
-      && apt-get install -y sudo curl \
+RUN apk update \
+      && apk add sudo curl \
       && rm -rf /var/lib/apt/lists/*
 RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
 
