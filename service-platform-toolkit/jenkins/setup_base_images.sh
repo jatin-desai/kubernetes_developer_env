@@ -23,10 +23,10 @@ set_env () {
 
   SHP_PROXY_URL=http://$SHP_NODE_IP:3128
 
-  export http_proxy=$SHP_PROXY_URL
-  export https_proxy=$SHP_PROXY_URL
-  export HTTP_PROXY=$SHP_PROXY_URL
-  export HTTPS_PROXY=$SHP_PROXY_URL
+  # export http_proxy=$SHP_PROXY_URL
+  # export https_proxy=$SHP_PROXY_URL
+  # export HTTP_PROXY=$SHP_PROXY_URL
+  # export HTTPS_PROXY=$SHP_PROXY_URL
 
 
   printf "\n1.3 Setting the base docker repository name - digital"
@@ -54,20 +54,14 @@ build_docker_base_image() {
 
   cp $SHP_HOME/shp-hsbc-utils/security/$INT_CERT_KEYSTORE .
 
-  docker build -f JavaBaseDockerfile -t $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine --build-arg APPD_AGENT=$APPD_AGENT --build-arg INT_CERT_KEYSTORE=$INT_CERT_KEYSTORE .
+  sudo docker build -f JavaBaseDockerfile -t $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine --build-arg APPD_AGENT=$APPD_AGENT --build-arg INT_CERT_KEYSTORE=$INT_CERT_KEYSTORE .
 
   # push image to docker repository
-  docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
-  docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
+  sudo docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
+  sudo docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
 
-  docker build -f JavaBaseDockerfile-oraclejdk -t $SHP_BASE_REPO/shp-openjdk:8-jdk-oracle --build-arg APPD_AGENT=$APPD_AGENT --build-arg INT_CERT_KEYSTORE=$INT_CERT_KEYSTORE .
-
-  # push image to docker repository
-  docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-oracle $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-oracle
-  docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-oracle
-
-  docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-oracle $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk
-  docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk
+  sudo docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk
+  sudo docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk
 
 
   # rm internal-certs-dummy.jks
