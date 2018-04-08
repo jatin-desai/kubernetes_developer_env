@@ -23,10 +23,10 @@ set_env () {
 
   SHP_PROXY_URL=http://$SHP_NODE_IP:3128
 
-  export http_proxy=$SHP_PROXY_URL
-  export https_proxy=$SHP_PROXY_URL
-  export HTTP_PROXY=$SHP_PROXY_URL
-  export HTTPS_PROXY=$SHP_PROXY_URL
+  #export http_proxy=$SHP_PROXY_URL
+  #export https_proxy=$SHP_PROXY_URL
+  #export HTTP_PROXY=$SHP_PROXY_URL
+  #export HTTPS_PROXY=$SHP_PROXY_URL
 
 
   printf "\n1.3 Setting the base docker repository name - digital"
@@ -47,7 +47,7 @@ build_docker_base_image() {
   # set docker env. to use minikube
   # will mean that all docker commands will run effectively inside minikube
   echo "\n setting the docker env. config to point to minikube"
-  eval $(minikube docker-env)
+  #eval $(minikube docker-env)
 
   APPD_AGENT=appd_agent.tar
   INT_CERT_KEYSTORE=internal-certs-dummy.jks
