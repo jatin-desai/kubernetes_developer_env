@@ -115,9 +115,14 @@ load_app_env_params() {
   export APP_NAME=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.artifactId | grep -v '\[')
   export APP_VERSION=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
 
+  echo "APP_GROUP_ID="$APP_GROUP_ID
+  echo "APP_NAME"=$APP_NAME
+  echo "APP_VERSION"=$APP_VERSION
+
   # Set docker env params
   ## Docker app jar is the generated app
   export APP_JAR=target/$APP_NAME-$APP_VERSION.jar
+  echo "APP_JAR"=$APP_JAR
 
   ## Docker image repo maps to group id from maven pom
   ## Docker app name maps to artifact id from pom
@@ -137,8 +142,6 @@ load_app_env_params() {
   then
     export APP_INST_CNT=$instance_count
   fi
-
-
 
 }
 
@@ -175,7 +178,7 @@ build_ms_docker_image() {
 
   # set docker env. to use minikube
   ## will mean that all docker commands will run effectively inside minikube
-  eval $(minikube docker-env)
+  # eval $(minikube docker-env)
 
   printf "7.1 Starting creation of Docker Image for - "$APP_BASEFLDR/$APP_JAR"\n"
   # Create docker image of the application - use the standard java app docker file provided
