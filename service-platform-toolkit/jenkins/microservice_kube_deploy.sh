@@ -12,6 +12,8 @@ set_shp_env() {
   # Set the shp base folder
   export SHP_HOME=$(pwd)
 
+  export PATH=$PATH:$HOME/tools/hudson.tasks.Maven_MavenInstallation/maven/bin
+
   # the node ip used by docker within minikube to talk back to the host
   # configured as a part of the dns config - this is configured by VirtualBox
   # SHP_NODE_IP='192.168.99.1'
