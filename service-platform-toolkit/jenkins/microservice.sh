@@ -116,22 +116,24 @@ load_app_env_params() {
   export APP_NAME=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.artifactId | grep -v '\[')
   export APP_VERSION=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
 
-  echo "mvn groupid command w/o grep:"$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId)
   echo "APP_GROUP_ID="$APP_GROUP_ID
-  echo "APP_NAME"=$APP_NAME
-  echo "APP_VERSION"=$APP_VERSION
+  echo "APP_NAME="$APP_NAME
+  echo "APP_VERSION="$APP_VERSION
 
   # Set docker env params
   ## Docker app jar is the generated app
   export APP_JAR=target/$APP_NAME-$APP_VERSION.jar
-  echo "APP_JAR"=$APP_JAR
+  echo "APP_JAR="$APP_JAR
 
   ## Docker image repo maps to group id from maven pom
   ## Docker app name maps to artifact id from pom
   ## Docker image version maps to app version in pom
   export APP_BASE_DOCKER_TAG=$APP_GROUP_ID/$APP_NAME:$APP_VERSION
 
+  echo "APP_BASE_DOCKER_TAG="$APP_BASE_DOCKER_TAG
+
   export APP_DCK_REPO_TAG=$SHP_DCR_REGISTRY/$APP_BASE_DOCKER_TAG
+  echo "APP_DCK_REPO_TAG="$APP_DCK_REPO_TAG
 
   BASE_CONFIG=$SHP_HOME/service-platform-operations/$SHP_TEAM_NAME/$APP_NAME/app-config.sh
   ENV_CONFIG=$SHP_HOME/service-platform-operations/$SHP_TEAM_NAME/$APP_NAME/app-config-$SHP_TARGET_ENV.sh
