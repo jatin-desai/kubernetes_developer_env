@@ -47,7 +47,7 @@ build_docker_base_image() {
   # set docker env. to use minikube
   # will mean that all docker commands will run effectively inside minikube
   echo "\n setting the docker env. config to point to minikube"
-  eval $(minikube docker-env)
+  # eval $(minikube docker-env)
 
   APPD_AGENT=appd_agent.tar
   INT_CERT_KEYSTORE=internal-certs-dummy.jks
