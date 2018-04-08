@@ -112,11 +112,11 @@ load_app_env_params() {
 
   cd $APP_BASEFLDR
   echo $(pwd)
-  export APP_GROUP_ID=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId | grep -v '\[')
+  export APP_GROUP_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId | grep -v '\[')
   export APP_NAME=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.artifactId | grep -v '\[')
   export APP_VERSION=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
 
-  echo "mvn groupid command w/o grep:"$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId)
+  echo "mvn groupid command w/o grep:"$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId)
   echo "APP_GROUP_ID="$APP_GROUP_ID
   echo "APP_NAME"=$APP_NAME
   echo "APP_VERSION"=$APP_VERSION
