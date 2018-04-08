@@ -1,4 +1,4 @@
-FROM digital/shp-openjdk:8-jdk
+FROM digital/shp-openjdk:8-jdk-alpine
 ARG JAR_FILE
 ARG APPD_ACCOUNT_NAME
 ARG APPD_ACCESS_KEY
