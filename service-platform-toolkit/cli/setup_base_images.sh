@@ -47,7 +47,7 @@ build_docker_base_image() {
   # set docker env. to use minikube
   # will mean that all docker commands will run effectively inside minikube
   echo "\n setting the docker env. config to point to minikube"
-  #eval $(minikube docker-env)
+  eval $(minikube docker-env)
 
   APPD_AGENT=appd_agent.tar
   INT_CERT_KEYSTORE=internal-certs-dummy.jks
@@ -60,18 +60,7 @@ build_docker_base_image() {
   docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
   docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
 
-  docker build -f JavaBaseDockerfile-oraclejdk -t $SHP_BASE_REPO/shp-openjdk:8-jdk-oracle --build-arg APPD_AGENT=$APPD_AGENT --build-arg INT_CERT_KEYSTORE=$INT_CERT_KEYSTORE .
-
-  # push image to docker repository
-  docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-oracle $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-oracle
-  docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-oracle
-
-  docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-oracle $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk
-  docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk
-
-
   # rm internal-certs-dummy.jks
-
 }
 
 

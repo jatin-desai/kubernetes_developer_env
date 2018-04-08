@@ -98,10 +98,11 @@ init_minikube() {
 #  minikube start --insecure-registry localhost:5000
 
   minikube start --memory=6144 \
-  --insecure-registry "docker.for.mac.host.internal:5000" \
-  --docker-env HTTP_PROXY=$SHP_PROXY_URL \
-  --docker-env HTTPS_PROXY=$SHP_PROXY_URL \
-  --docker-env NO_PROXY="docker.for.mac.host.internal,$SHP_NODE_IP"
+  --insecure-registry "docker.for.mac.host.internal:5000"
+  #\
+  #--docker-env HTTP_PROXY=$SHP_PROXY_URL \
+  #--docker-env HTTPS_PROXY=$SHP_PROXY_URL \
+  #--docker-env NO_PROXY="docker.for.mac.host.internal,$SHP_NODE_IP"
 
   echo "\n2.3 Configure minikube to route docker requests to host ip"
   minikube ssh "sudo sh -c 'echo $SHP_NODE_IP docker.for.mac.host.internal >> /etc/hosts'"
@@ -192,5 +193,5 @@ setup_docker_registry
 init_minikube
 setup_dns
 configure_dashboard
-configure_fluentd_elasticsearch_kibana
+#configure_fluentd_elasticsearch_kibana
 echo_setup_complete
