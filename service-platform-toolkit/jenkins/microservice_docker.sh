@@ -130,7 +130,7 @@ build_ms_docker_image() {
 
   printf "5.1 Starting creation of Docker Image for - "$APP_BASEFLDR/$APP_JAR"\n"
   # Create docker image of the application - use the standard java app docker file provided
-  docker build -f $SHP_HOME/service-platform-toolkit/utils/docker/app-images/JavaAppDockerfile -t $APP_BASE_DOCKER_TAG --build-arg JAR_FILE=$APP_JAR $APP_BASEFLDR
+  sudo docker build -f $SHP_HOME/service-platform-toolkit/utils/docker/app-images/JavaAppDockerfile -t $APP_BASE_DOCKER_TAG --build-arg JAR_FILE=$APP_JAR $APP_BASEFLDR
 
   printf "\n5.2 Docker image created - "$APP_BASE_DOCKER_TAG"\n"
 
@@ -148,8 +148,8 @@ build_ms_docker_image() {
 
   # tag and push the image to the docker registry
   printf "\n5.3 Uploading docker image to Docker Repository - "$APP_DCK_REPO_TAG"\n"
-  docker tag $APP_BASE_DOCKER_TAG $APP_DCK_REPO_TAG
-  docker push $APP_DCK_REPO_TAG
+  sudo docker tag $APP_BASE_DOCKER_TAG $APP_DCK_REPO_TAG
+  sudo docker push $APP_DCK_REPO_TAG
 }
 
 
