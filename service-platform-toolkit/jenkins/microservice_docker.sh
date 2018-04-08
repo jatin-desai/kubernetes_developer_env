@@ -79,28 +79,37 @@ load_app_env_params() {
 
 
   cd $APP_BASEFLDR
-  export APP_GROUP_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId | grep -v '\[')
+  export APP_GROUP_ID=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId | grep -v '\[')
   export APP_NAME=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.artifactId | grep -v '\[')
   export APP_VERSION=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
 
-  echo "APP_GROUP_ID="$APP_GROUP_ID
-  echo "APP_NAME="$APP_NAME
-  echo "APP_VERSION="$APP_VERSION
 
   # Set docker env params
   ## Docker app jar is the generated app
   export APP_JAR=target/$APP_NAME-$APP_VERSION.jar
-  echo "APP_JAR="$APP_JAR
 
   ## Docker image repo maps to group id from maven pom
   ## Docker app name maps to artifact id from pom
   ## Docker image version maps to app version in pom
   export APP_BASE_DOCKER_TAG=$APP_GROUP_ID/$APP_NAME:$APP_VERSION
 
-  echo "APP_BASE_DOCKER_TAG="$APP_BASE_DOCKER_TAG
 
   export APP_DCK_REPO_TAG=$SHP_DCR_REGISTRY/$APP_BASE_DOCKER_TAG
-  echo "APP_DCK_REPO_TAG="$APP_DCK_REPO_TAG
+
+  printf '\n\n********************************************************************************\n'
+  printf "\n1. APP_GROUP_ID = "
+  echo $APP_GROUP_ID
+  printf "\n2. APP_NAME= "
+  echo $APP_NAME
+  printf "\n3. APP_VERSION = "
+  echo $APP_VERSION
+  printf "\n4. APP_JAR = "
+  echo $APP_JAR
+  printf "\n5. APP_BASE_DOCKER_TAG = "
+  echo $APP_BASE_DOCKER_TAG
+  printf "\n6. APP_DCK_REPO_TAG = "
+  echo $APP_DCK_REPO_TAG
+  printf '\n********************************************************************************\n'
 
 }
 
