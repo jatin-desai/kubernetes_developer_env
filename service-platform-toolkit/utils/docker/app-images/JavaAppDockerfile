@@ -4,9 +4,6 @@ ARG APPD_ACCOUNT_NAME
 ARG APPD_ACCESS_KEY
 ADD ${JAR_FILE} app.jar
 
-COPY appdynamics /appdynamics/
-RUN chown root:root /appdynamics
-
 # ENTRYPOINT ["java", "-javaagent:/home/appdynamics/javaagent.jar -Dappdynamics.controller.hostName=abc.saas.appdynamics.com -Dappdynamics.controller.port=443 -Dappdynamics.agent.accountName=${APPD_ACCOUNT_NAME} -Dappdynamics.agent.accountAccessKey=${APPD_ACCESS_KEY} -Dappdynamics.agent.applicationName=PlatformExampleApp -Dappdynamics.agent.tierName=Digital -Dappdynamics.agent.nodeName=KubeCluster -Dappdynamics.http.proxyHost=192.168.99.1 -Dappdynamics.http.proxyPort=3128 -Dappdynamics.controller.ssl.enabled=true -Djava.security.egd=file:/dev/./urandom", "-jar", "/app.jar"]
 
 # invoke app directly

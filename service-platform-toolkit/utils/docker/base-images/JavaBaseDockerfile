@@ -6,8 +6,8 @@ ARG INT_CERT_KEYSTORE
 
 # TBD - appd placeholder
 ADD ${APPD_AGENT} appd_agent.tar
-RUN mv ./appd_agent.tar/AppServerAgent-4.2.15.18/ /home/appdynamics \
-&& chown root:root /home/appdynamics
+RUN mv ./appd_agent.tar/AppServerAgent-4.2.15.18/ /appdynamics \
+&& chown root:root /appdynamics
 
 # TBD - internal certs placeholder
 ADD ${INT_CERT_KEYSTORE} keystore.jks
