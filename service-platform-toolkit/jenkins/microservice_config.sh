@@ -12,7 +12,7 @@ set_shp_env() {
   # Set the shp base folder
   export SHP_HOME=$(pwd)
 
-  export PATH=$PATH:$HOME/tools/hudson.tasks.Maven_MavenInstallation/M3/bin
+  export PATH=$PATH:$HOME/tools/hudson.tasks.Maven_MavenInstallation/maven/bin
 
 
   printf '\n********************************************************************************\n'
