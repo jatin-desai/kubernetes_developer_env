@@ -17,17 +17,17 @@ collect_config() {
 
   # Get the XFT / Product team Namespace (e.g. Platform)
 
-  # Note : The subdomain should be based on the namespace - so it will be platform.local.service.platform
+  # Note : The subdomain should be based on the namespace - so it will be tech.local.service.platform
   # - it should be a one-to-one mapping
   # TBC - should the namespace and the subdomain name be the same ?
   printf "\n1.4 Define the XFT / Product team Namespace"
   printf "\nThere should ideally be a one-to-one mapping between the namespace and domain."
   printf "\nIf teams want them to be different, it can be configured in the product line config\n"
 
-  printf '\nSpecify kubernetes namespace for the team - default is platform: '; read nmsp ;
+  printf '\nSpecify kubernetes namespace for the team - default is play: '; read nmsp ;
   if [ -z "$nmsp" ];
   then
-    K8S_NAMESPACE='platform'
+    K8S_NAMESPACE='play'
   else
     K8S_NAMESPACE=$nmsp
   fi
@@ -52,10 +52,10 @@ create_k8s_namespace() {
 create_team_config() {
 
   printf "\nStage 4 Creating ops configuration for "$K8S_NAMESPACE"\n"
-  mkdir $SHP_HOME/service-platform-operations/$K8S_NAMESPACE
+  mkdir $SHP_HOME/service-platform-operations/autogen-config/$K8S_NAMESPACE
 
-  CONFIG_TEMPLATE=$SHP_HOME/service-platform-operations/global/config-template.sh
-  TEAM_CONFIG=$SHP_HOME/service-platform-operations/$K8S_NAMESPACE/$K8S_NAMESPACE-config.sh
+  CONFIG_TEMPLATE=$SHP_HOME/service-platform-operations/base-config/env-config/config-template.sh
+  TEAM_CONFIG=$SHP_HOME/service-platform-operations/autogen-config/$K8S_NAMESPACE/$K8S_NAMESPACE-config.sh
 
   cp $CONFIG_TEMPLATE $TEAM_CONFIG
   echo "declare k8s_namespace="$K8S_NAMESPACE >> $TEAM_CONFIG
@@ -64,8 +64,8 @@ create_team_config() {
 
   for targetenv in "local" "dev" "prod"
   do
-    CONFIG_TEMPLATE=$SHP_HOME/service-platform-operations/global/config-template-$targetenv.sh
-    TEAM_CONFIG=$SHP_HOME/service-platform-operations/$K8S_NAMESPACE/$K8S_NAMESPACE-config-$targetenv.sh
+    CONFIG_TEMPLATE=$SHP_HOME/service-platform-operations/base-config/env-config/config-template-$targetenv.sh
+    TEAM_CONFIG=$SHP_HOME/service-platform-operations/autogen-config/$K8S_NAMESPACE/$K8S_NAMESPACE-config-$targetenv.sh
     cp $CONFIG_TEMPLATE $TEAM_CONFIG
     chmod +x $TEAM_CONFIG
   done

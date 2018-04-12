@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: platform-example-spring
+  namespace: platform
+spec:
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: platform-example-spring-app
+    spec:
+      containers:
+        - name: platform-example-spring
+          image: localhost:5000/com.hsbc.digital.platform/platform-example-spring:1.0.0
+          ports:
+          - containerPort: 8080
+# this uses the local docker registry

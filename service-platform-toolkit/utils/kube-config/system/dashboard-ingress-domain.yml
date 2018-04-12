@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dashboard-ingress-domain
+  namespace: kube-system
+  annotations:
+    nginx.org/server-snippet: "proxy_ssl_verify off;"
+spec:
+  rules:
+  - host: dashboard.system.local.service.platform
+    http:
+      paths:
+      - backend:
+          serviceName: kubernetes-dashboard
+          servicePort: 80
+        path: /

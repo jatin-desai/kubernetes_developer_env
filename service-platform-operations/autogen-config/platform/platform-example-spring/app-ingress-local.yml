@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: platform-example-spring
+  namespace: platform
+spec:
+  rules:
+  - host: platform-example-spring.platform.local.service.platform
+    http:
+      paths:
+      - backend:
+          serviceName: platform-example-spring
+          servicePort: 8080
+        path: /

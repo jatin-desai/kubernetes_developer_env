@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A very simple Hello World RESTful web service.
+ * A very simple RESTful web service.
  */
 @RestController
 @EnableAutoConfiguration
@@ -32,13 +32,13 @@ public class SampleRestController {
     private static int value = rand.nextInt(50);
 
     /**
-     * The hello endpoint.  Says hello.
+     * The hello endpoint.
      *
      * @return a String response.
      */
     @RequestMapping("/hello")
     public String hello() {
-        LOGGER.info("Syslog output from Hello-world application");
+        LOGGER.info("Syslog output from Platform-Example-Spring application");
         java.util.Properties props = System.getProperties();
         LOGGER.debug("Instance Random Identifier:" + value);
         return "Platform Example Spring Boot Application Sucessfully deployed ! " + value;

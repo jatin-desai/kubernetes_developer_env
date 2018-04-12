@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentdconf
+  namespace: platform
+data:
+  fluent.conf: |
+    <match fluent.**>
+      @type null
+    </match>
+    <source>
+      @type tail
+      path /var/log/containers/*.log
+      pos_file /var/log/fluentd-containers.log.pos
+      time_format %Y-%m-%dT%H:%M:%S.%NZ
+      tag kubernetes.*
+      format json
+      read_from_head true
+    </source>
+    <match kubernetes.var.log.containers.**fluentd**.log>
+      @type null
+    </match>
+    <match kubernetes.var.log.containers.**kube-system**.log>
+      @type kubernetes_remote_syslog
+      host "#{ENV['SYSLOG_HOST']}"
+      port "#{ENV['SYSLOG_PORT']}"
+      severity debug
+      tag fluentd
+      protocol tcp
+      packet_size 65535
+      output_data_type ltsv
+    </match>
+    <match kubernetes.var.log.containers.**platform**.log>
+      @type kubernetes_remote_syslog
+      host "#{ENV['SYSLOG_HOST']}"
+      port "#{ENV['SYSLOG_PORT']}"
+      severity debug
+      tag fluentd
+      protocol tcp
+      packet_size 65535
+      output_data_type ltsv
+    </match>
+    <match **>
+      @type kubernetes_remote_syslog
+      host "#{ENV['SYSLOG_HOST']}"
+      port "#{ENV['SYSLOG_PORT']}"
+      severity debug
+      tag fluentd
+      protocol tcp
+      packet_size 65535
+      output_data_type ltsv
+    </match>

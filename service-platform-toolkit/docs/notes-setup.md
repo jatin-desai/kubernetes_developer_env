@@ -76,10 +76,10 @@ TBD - Splunk logging drivers
 
 # build base image
 
-export SHP_BASE_REPO='digital'
+export HSBC_BASE_REPO='hsbc-digital'
 cd $SHP_HOME/utils/docker/base-images
 
-docker build -f JavaBaseDockerfile -t $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine --build-arg APPD_AGENT=appd-dummy.jar --build-arg HSBC_CERT_KEYSTORE=hsbc-certs-dummy.jks --build-arg LOG_DRIVER='Splunk' .
+docker build -f JavaBaseDockerfile -t $HSBC_BASE_REPO/shp-openjdk:8-jdk-alpine --build-arg APPD_AGENT=appd-dummy.jar --build-arg HSBC_CERT_KEYSTORE=hsbc-certs-dummy.jks --build-arg LOG_DRIVER='Splunk' .
 
 # push image to docker repository
 docker tag $HSBC_BASE_REPO/shp-openjdk:8-jdk-alpine $DOCKER_REGISTRY/$HSBC_BASE_REPO/shp-openjdk:8-jdk-alpine
