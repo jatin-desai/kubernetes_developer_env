@@ -5,7 +5,7 @@
  - creates a local docker registry
  - creates a dns server
 
-### DEMO :
+### Demo :
   - Quick overview of
 ```shell
 ./service-platform-toolkit/cli/setup_local.sh
