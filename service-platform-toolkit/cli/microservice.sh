@@ -107,8 +107,8 @@ load_team_base_config() {
   printf "Stage 3 Load Base Team Configuration for "$SHP_TEAM_NAME
   printf '\n********************************************************************************\n'
 
-  export BASE_CONFIG=$SHP_HOME/service-platform-operations/$SHP_TEAM_NAME/$SHP_TEAM_NAME-config.sh
-  export ENV_CONFIG=$SHP_HOME/service-platform-operations/$SHP_TEAM_NAME/$SHP_TEAM_NAME-config-$SHP_TARGET_ENV.sh
+  export BASE_CONFIG=$SHP_HOME/service-platform-operations/autogen-config/env-config/$SHP_TEAM_NAME/$SHP_TEAM_NAME-config.sh
+  export ENV_CONFIG=$SHP_HOME/service-platform-operations/autogen-config/env-config/$SHP_TEAM_NAME/$SHP_TEAM_NAME-config-$SHP_TARGET_ENV.sh
 
   source $BASE_CONFIG
   source $ENV_CONFIG
@@ -121,18 +121,6 @@ load_team_base_config() {
   export APP_CONT_PORT=$container_port
   export APP_SVC_PORT=$service_port
   export APP_INST_CNT=$instance_count
-
-  source ./shp-hsbc-utils/appd/appd-config.sh
-  export APPD_PROXY_HOST=$appd_proxy_host
-  export APPD_PROXY_PORT=$appd_proxy_port
-  export APPD_CONTROLLER_HOST=$appd_controller_host
-  export APPD_CONTROLLER_PORT=$appd_controller_port
-  export APPD_ACCOUNT_NAME=$appd_account_name
-  export APPD_ACCESS_KEY=$appd_access_key
-  export APPD_APP_NAME=$APP_NAME
-  export APPD_TIER=$appd_tier
-  export APPD_NODE_NAME=$appd_node_name"-"$SHP_NODE_IP"-"$SHP_TARGET_ENV
-
 
 
   printf '\n********************************************************************************\n'
@@ -156,6 +144,10 @@ load_app_env_params() {
   export APP_NAME=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.artifactId | grep -v '\[')
   export APP_VERSION=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
 
+  printf "\n Application Group Id : "$APP_GROUP_ID
+  printf "\n Application Name     : "$APP_NAME
+  printf "\n Application Version  : "$APP_VERSION
+
   # Set docker env params
   ## Docker app jar is the generated app
   export APP_JAR=target/$APP_NAME-$APP_VERSION.jar
@@ -167,8 +159,8 @@ load_app_env_params() {
   export APP_DCK_REPO_TAG=$SHP_DCR_REGISTRY/$APP_BASE_DOCKER_TAG
 
   printf "\n4.2 Load application-specific (optional) configuration\n"
-  BASE_CONFIG=$SHP_HOME/service-platform-operations/app-config/$SHP_TEAM_NAME/$APP_NAME/app-config.sh
-  ENV_CONFIG=$SHP_HOME/service-platform-operations/app-config/$SHP_TEAM_NAME/$APP_NAME/app-config-$SHP_TARGET_ENV.sh
+  BASE_CONFIG=$SHP_HOME/service-platform-operations/user-config/$SHP_TEAM_NAME/$APP_NAME/app-config.sh
+  ENV_CONFIG=$SHP_HOME/service-platform-operations/user-config/$SHP_TEAM_NAME/$APP_NAME/app-config-$SHP_TARGET_ENV.sh
 
   # this line will display an alert if not app specific configs are defined - this is NOT an error
   source $BASE_CONFIG
@@ -259,22 +251,56 @@ build_ms_docker_image() {
   $DOCKER_CMD push $APP_DCK_REPO_TAG
 }
 
+load_appdynamics_config() {
+
+  printf '\n\n********************************************************************************\n'
+  printf "Stage 7 Load AppDynamics Configuration"
+  printf '\n********************************************************************************\n'
+
+  # load appdynamics configuration
+  source $SHP_HOME/shp-hsbc-utils/appd/appd-config.sh
+  export APPD_PROXY_HOST=$appd_proxy_host
+  export APPD_PROXY_PORT=$appd_proxy_port
+  export APPD_CONTROLLER_HOST=$appd_controller_host
+  export APPD_CONTROLLER_PORT=$appd_controller_port
+  export APPD_ACCOUNT_NAME=$appd_account_name
+  export APPD_ACCESS_KEY=$appd_access_key
+  export APPD_APP_NAME=$APP_NAME
+  export APPD_TIER=$appd_tier
+  export APPD_NODE_NAME=$appd_node_name"-"$SHP_NODE_IP"-"$SHP_TARGET_ENV
+
+  printf "\nAPPD_PROXY_HOST :"$APPD_PROXY_HOST
+  printf "\nAPPD_PROXY_PORT :"$APPD_PROXY_PORT
+  printf "\nAPPD_CONTROLLER_HOST :"$APPD_CONTROLLER_HOST
+  printf "\nAPPD_CONTROLLER_PORT :"$APPD_CONTROLLER_PORT
+  printf "\nAPPD_ACCOUNT_NAME :"$APPD_ACCOUNT_NAME
+  printf "\nAPPD_ACCESS_KEY :"$APPD_ACCESS_KEY
+  printf "\nAPPD_APP_NAME :"$APPD_APP_NAME
+  printf "\nAPPD_TIER :"$APPD_TIER
+  printf "\nAPPD_NODE_NAME :"$APPD_NODE_NAME
+
+  printf '\n\n********************************************************************************\n'
+  printf "Stage 7 COMPLETE"
+  printf '\n********************************************************************************\n'
+
+}
+
 generate_kube_config() {
 
   printf '\n\n********************************************************************************\n'
-  printf "Stage 7 Deploy application to Kubernetes cluster"
+  printf "Stage 8 Generate Kubernetes Deployment Configuration"
   printf '\n********************************************************************************\n'
 
   cd $APP_BASEFLDR
-  mkdir $SHP_HOME/service-platform-operations/autogen-config/$SHP_TEAM_NAME/$APP_NAME
+  mkdir $SHP_HOME/service-platform-operations/autogen-config/kube-yamls/$SHP_TEAM_NAME/$APP_NAME
 
   BASE_DEPLOY_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-deployment.yml
   BASE_SERVICE_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-service.yml
   BASE_INGRESS_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-ingress.yml
 
-  APP_DEPLOY_YAML=$SHP_HOME/service-platform-operations/autogen-config/$SHP_TEAM_NAME/$APP_NAME/app-deployment-$SHP_TARGET_ENV.yml
-  APP_SERVICE_YAML=$SHP_HOME/service-platform-operations/autogen-config/$SHP_TEAM_NAME/$APP_NAME/app-service-$SHP_TARGET_ENV.yml
-  APP_INGRESS_YAML=$SHP_HOME/service-platform-operations/autogen-config/$SHP_TEAM_NAME/$APP_NAME/app-ingress-$SHP_TARGET_ENV.yml
+  APP_DEPLOY_YAML=$SHP_HOME/service-platform-operations/autogen-config/kube-yamls/$SHP_TEAM_NAME/$APP_NAME/app-deployment-$SHP_TARGET_ENV.yml
+  APP_SERVICE_YAML=$SHP_HOME/service-platform-operations/autogen-config/kube-yamls/$SHP_TEAM_NAME/$APP_NAME/app-service-$SHP_TARGET_ENV.yml
+  APP_INGRESS_YAML=$SHP_HOME/service-platform-operations/autogen-config/kube-yamls/$SHP_TEAM_NAME/$APP_NAME/app-ingress-$SHP_TARGET_ENV.yml
 
   eval "echo \"$(< $BASE_DEPLOY_YAML)\"" > $APP_DEPLOY_YAML
   printf "\n7.1 - Application Deployment Config created - "$APP_DEPLOY_YAML
@@ -285,6 +311,9 @@ generate_kube_config() {
   eval "echo \"$(< $BASE_INGRESS_YAML)\"" > $APP_INGRESS_YAML
   printf "\n7.3 - Application Ingress Config created - "$APP_INGRESS_YAML
 
+  printf '\n\n********************************************************************************\n'
+  printf "Stage 8 COMPLETE"
+  printf '\n********************************************************************************\n'
 
 }
 
@@ -292,17 +321,17 @@ generate_kube_config() {
 deploy_app_to_shp_k8s() {
 
   printf '\n\n********************************************************************************\n'
-  printf "Stage 8 Deploy application to Kubernetes cluster"
+  printf "Stage 9 Deploy application to Kubernetes cluster"
   printf '\n********************************************************************************\n'
 
   # Deploy microservice to K8s cluster in the K8S_NAMESPACE
-  printf "\n8.1 - Starting Deployment of Application to Kubernetes cluster\n"
-  cd $SHP_HOME/service-platform-operations/autogen-config/$SHP_TEAM_NAME/$APP_NAME
+  printf "\n9.1 - Starting Deployment of Application to Kubernetes cluster\n"
+  cd $SHP_HOME/service-platform-operations/autogen-config/kube-yamls/$SHP_TEAM_NAME/$APP_NAME
   $KUBECTL_CMD apply -f app-deployment-$SHP_TARGET_ENV.yml
   $KUBECTL_CMD apply -f app-service-$SHP_TARGET_ENV.yml
   $KUBECTL_CMD apply -f app-ingress-$SHP_TARGET_ENV.yml
 
-  printf "\n8.2 Application Deployment Status\n"
+  printf "\n9.2 Application Deployment Status\n"
   $KUBECTL_CMD get pods,services,ingress -n=$APP_NAMESPACE
 
 }
@@ -325,6 +354,7 @@ load_team_base_config
 load_app_env_params
 build_microservice_pkg
 build_ms_docker_image
+load_appdynamics_config
 generate_kube_config
 deploy_app_to_shp_k8s
 print_microservice_domain

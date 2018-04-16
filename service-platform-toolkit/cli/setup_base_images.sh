@@ -37,8 +37,8 @@ set_env () {
   fi
 
 
-  printf "\n1.3 Setting the base docker repository name - digital"
-  printf "This is more as a reference and the appropriate docker repository structure will need to be agreed"
+  printf "\n1.3 Setting the base docker repository name - digital\n"
+  printf "\nThis is more as a reference and the appropriate docker repository structure will need to be agreed\n"
   SHP_BASE_REPO='digital'
 
   printf '\n********************************************************************************\n'
@@ -60,6 +60,7 @@ build_docker_base_image() {
   APPD_AGENT=appd_agent.tar
   CERT_KEYSTORE=internal-certs-dummy.jks
 
+  cp $SHP_HOME/shp-hsbc-utils/appd/$APPD_AGENT .
   cp $SHP_HOME/shp-hsbc-utils/security/$CERT_KEYSTORE .
 
   docker build -f JavaBaseDockerfile -t $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine --build-arg APPD_AGENT=$APPD_AGENT --build-arg CERT_KEYSTORE=$CERT_KEYSTORE .
@@ -68,8 +69,8 @@ build_docker_base_image() {
   docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
   docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
 
-  rm internal-certs-dummy.jks
-
+  rm $CERT_KEYSTORE
+  rm $APPD_AGENT
 
 }
 

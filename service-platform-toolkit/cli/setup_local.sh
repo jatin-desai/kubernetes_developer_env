@@ -47,7 +47,7 @@ clean_slate() {
 
   echo "
     This script will delete any existing minikube env and the existing service platform docker registry instance
-    Press enter to continue... enter to exit
+    Press enter to continue... Ctrl+C to exit
   "
   read cleanup
 
@@ -84,6 +84,7 @@ set_env () {
   printf "\n2.1 Setting up the Service Hosting Platform Home Folder" $(pwd) "\n"
   SHP_HOME=$(pwd)
 
+  SHP_DOMAIN_NAME="local.service.platform"
 
   # set docker registry env variable
   printf "\n2.2 Setting docker registry at localhost(docker.for.mac.host.internal:5000) - for the local dev env. the registry will run on the host machine\n"
@@ -192,7 +193,7 @@ setup_dns() {
   read cont
 
   printf "\n Creating DNS Server Docker container\n"
-  MINIKUBE_IP=$(minikube ip) SHP_NODE_IP=$SHP_NODE_IP $DOCKER_COMPOSE_CMD -f $SHP_HOME/service-platform-toolkit/utils/docker-config/dns.yml -p service-platform-dns up -d
+  MINIKUBE_IP=$(minikube ip) SHP_NODE_IP=$SHP_NODE_IP SHP_DOMAIN_NAME=$SHP_DOMAIN_NAME $DOCKER_COMPOSE_CMD -f $SHP_HOME/service-platform-toolkit/utils/docker-config/dns.yml -p service-platform-dns up -d
 
   printf '\n\n********************************************************************************\n'
   printf "Stage 5: DNS Server Setup COMPLETE"
@@ -232,22 +233,20 @@ configure_fluentd_elasticsearch_kibana() {
   printf "Stage 7: Configure Platform Services - Logging "
   printf '\n********************************************************************************\n'
 
-  printf "\n7.1 Creating Kubernetes --platform-- namespace\n"
-  $KUBECTL_CMD create namespace $K8S_NAMESPACE
 
   cd $SHP_HOME/service-platform-toolkit/utils/kube-config/services/logging
-  printf "\n7.2 Setting up elasticsearch \n"
+  printf "\n7.1 Setting up elasticsearch \n"
   $KUBECTL_CMD apply -f es-kibana/es-controller.yaml
   $KUBECTL_CMD apply -f es-kibana/es-service.yaml
 
-  printf "\n7.3 Setting up kibana \n"
+  printf "\n7.2 Setting up kibana \n"
   $KUBECTL_CMD apply -f es-kibana/kibana-controller.yaml
   $KUBECTL_CMD apply -f es-kibana/kibana-service.yaml
 
-  printf "\n7.4 Configuring Kibana route - http://kibana.platform.local.service.platform/ \n"
+  printf "\n7.3 Configuring Kibana route - http://kibana.platform.local.service.platform/ \n"
   $KUBECTL_CMD apply -f es-kibana/kibana-ingress-domain.yml
 
-  printf "\n7.5 Configuring fluentd daemonset \n"
+  printf "\n7.4 Configuring fluentd daemonset \n"
   # Set 1 - k8s system logging to es-kibana; platform services and app logging to syslog
   $KUBECTL_CMD apply -f fluentd/es-sl/fluentd-configmap-elasticsearch-syslog.yaml
   $KUBECTL_CMD apply -f fluentd/es-sl/fluentd-daemonset-elasticsearch-syslog.yaml
@@ -274,7 +273,7 @@ echo_setup_complete() {
   printf '\n********************************************************************************'
   printf '\n***************   Platform Base Domain: local.service.platform   ***************'
   printf '\n*******  Dashboard URL: http://dashboard.system.local.service.platform   *******'
-  printf '\n*******  Kibana Dashboard: http://kibana.system.local.service.platform   ******'
+  printf '\n*******  Kibana Dashboard: http://kibana.utils.local.service.platform   ******'
   printf '\n********************************************************************************\n\n'
 }
 
