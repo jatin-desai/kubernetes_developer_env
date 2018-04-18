@@ -2,16 +2,5 @@ FROM digital/shp-openjdk:8-jdk-alpine
 ARG JAR_FILE
 ADD ${JAR_FILE} app.jar
 
-RUN chown root:root /appdynamics
-
-# ENTRYPOINT ["java", "-javaagent:/home/appdynamics/javaagent.jar -Dappdynamics.controller.hostName=hsbc1test.saas.appdynamics.com -Dappdynamics.controller.port=443 -Dappdynamics.agent.accountName=hsbc1test -Dappdynamics.agent.accountAccessKey=b5a8c560aa4e -Dappdynamics.agent.applicationName=PlatformExampleApp -Dappdynamics.agent.tierName=Digital -Dappdynamics.agent.nodeName=KubeCluster -Dappdynamics.http.proxyHost=192.168.99.1 -Dappdynamics.http.proxyPort=3128 -Dappdynamics.controller.ssl.enabled=true -Djava.security.egd=file:/dev/./urandom", "-jar", "/app.jar"]
-
-# invoke app directly
-# ENTRYPOINT ["java", "-javaagent:/appdynamics/javaagent.jar", "-Dappdynamics.http.proxyHost=192.168.99.1", "-Dappdynamics.http.proxyPort=3228", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app.jar"]
-
-# ENTRYPOINT ["java", "-javaagent:/appdynamics/javaagent.jar", "-Dappdynamics.controller.hostName=hsbc1test.saas.appdynamics.com", "-Dappdynamics.controller.port=443", "-Dappdynamics.agent.accountName=hsbc1test", "-Dappdynamics.agent.accountAccessKey=b5a8c560aa4e", "-Dappdynamics.controller.ssl.enabled=true", "-Dappdynamics.agent.applicationName=PlatformExampleApp", "-Dappdynamics.agent.tierName=Digital", "-Dappdynamics.agent.nodeName=KubeCluster", "-Dappdynamics.http.proxyHost=192.168.99.1", "-Dappdynamics.http.proxyPort=3228", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app.jar"]
-
 #invoke via entrypoint file
-# COPY entrypoint.sh /entrypoint.sh
-# RUN chmod +x /entrypoint.sh
 CMD ["/entrypoint.sh"]

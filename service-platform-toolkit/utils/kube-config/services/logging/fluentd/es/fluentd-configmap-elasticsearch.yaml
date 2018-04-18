@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: fluentdconf
-  namespace: platform
+  namespace: kube-system
 data:
   fluent.conf: |
     <match fluent.**>

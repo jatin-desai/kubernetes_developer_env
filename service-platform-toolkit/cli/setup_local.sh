@@ -105,7 +105,7 @@ set_env () {
   printf "\n2.3 Configure proxy endpoint for minikube to point to host ip from minikube\n"
   SHP_NODE_IP=$VM_HOST_IP
   SHP_PROXY_URL=http://$SHP_NODE_IP:3128
-  NO_PROXY_URLS="docker.for.mac.host.internal,$SHP_NODE_IP,*.hsbc"
+  NO_PROXY_URLS="docker.for.mac.host.internal,$SHP_NODE_IP,*.hsbc,*.platform"
 
 
   printf '\n********************************************************************************\n'
@@ -188,7 +188,7 @@ setup_dns() {
   # Setup DNS resolution to the minikube cluster
 
   echo "Ensure that the dns nameserver is configured at /etc/resolver/<minikube base domain> pointing to 127.0.0.1"
-  echo "e.g. script : echo \"nameserver 127.0.0.1\" >> local.service.platform"
+  echo "e.g. script : echo nameserver 127.0.0.1 >> local.service.platform"
   echo "Press enter to continue... "
   read cont
 
@@ -273,7 +273,7 @@ echo_setup_complete() {
   printf '\n********************************************************************************'
   printf '\n***************   Platform Base Domain: local.service.platform   ***************'
   printf '\n*******  Dashboard URL: http://dashboard.system.local.service.platform   *******'
-  printf '\n*******  Kibana Dashboard: http://kibana.utils.local.service.platform   ******'
+  printf '\n*******  Kibana Dashboard: http://kibana.system.local.service.platform   ******'
   printf '\n********************************************************************************\n\n'
 }
 

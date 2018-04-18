@@ -40,6 +40,13 @@ public class SampleRestController {
     public String hello() {
         LOGGER.info("Syslog output from Platform-Example-Spring application");
         java.util.Properties props = System.getProperties();
+        try {
+          int sleepTimeInMilliseconds = value*200 ; // value/5 * 1000 - wait for these many milliseconds
+          LOGGER.info("Sleeping for " + sleepTimeInMilliseconds + " milliseconds....");
+          Thread.sleep(sleepTimeInMilliseconds);
+        } catch (java.lang.InterruptedException ex) {
+          LOGGER.debug("Caught InterruptedException :" + ex.toString());
+        }
         LOGGER.debug("Instance Random Identifier:" + value);
         return "Platform Example Spring Boot Application Sucessfully deployed ! " + value;
     }

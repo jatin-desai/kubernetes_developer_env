@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: kibana-ingress-domain
-  namespace: platform
+  namespace: kube-system
   annotations:
     nginx.org/server-snippet: "proxy_ssl_verify off;"
     nginx.ingress.kubernetes.io/rewrite-target: "/"

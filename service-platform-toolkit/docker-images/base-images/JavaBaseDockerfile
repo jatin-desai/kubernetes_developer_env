@@ -4,7 +4,7 @@ ARG APPD_AGENT
 ARG CERT_KEYSTORE
 
 
-# TBD - appd placeholder
+# Add AppDynamics Agent
 ADD ${APPD_AGENT} appd_agent.tar
 RUN mv ./appd_agent.tar/AppServerAgent-4.2.15.18/ /appdynamics \
 && chown root:root /appdynamics
