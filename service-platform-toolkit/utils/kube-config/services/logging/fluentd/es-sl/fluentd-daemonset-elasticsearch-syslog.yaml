@@ -35,7 +35,7 @@ spec:
           - name: FLUENT_ELASTICSEARCH_PASSWORD
             value: "changeme"
           - name: SYSLOG_HOST
-            value: "digital-splunk-intermediate-fwd-uat.systems.uk.hsbc"
+            value: "syslog.server"
           - name: SYSLOG_PORT
             value: "1797"
         resources:

@@ -23,7 +23,7 @@ spec:
         image: jatindesai/fluentd:v0.12.33-syslog
         env:
           - name: SYSLOG_HOST
-            value: "digital-splunk-intermediate-fwd-uat.systems.uk.hsbc"
+            value: "syslog.server"
           - name: SYSLOG_PORT
             value: "1797"
         resources:
