@@ -10,7 +10,8 @@ set_shp_env() {
   printf '\n********************************************************************************\n'
   ## run this from the SHP base folder (~/sandbox/shp/gitrepo for me)
   # Set the shp base folder
-  export SHP_HOME=$(pwd)
+  export SHP_HOME=$(pushd $(dirname $0)/../.. >/dev/null ; echo ${PWD})
+  echo "SHP home: ${SHP_HOME}"
 
   printf "\n Is this a dry run : default=n "; read dryrun
 
@@ -29,9 +30,27 @@ set_shp_env() {
     USE_PROXY="n"
   fi
 
+
+  printf "\n2.3 Select the VM driver configured in minikube"
+  local read_vm_driver
+  read -p "are you using {H}yperkit or {V}irtualBox?" read_vm_driver
+  case "${read_vm_driver}" in
+    "H"|"h")
+      VM_HOST_IP='192.168.64.1'
+      ;;
+    "V"|"v")
+      VM_HOST_IP='192.168.99.1'
+      ;;
+    *)
+      echo "Unknown VM Driver '${read_vm_driver}'"
+      echo "assuming virtualbox"
+      VM_HOST_IP='192.168.99.1'
+      ;;
+  esac
+
   # the node ip used by docker within minikube to talk back to the host
   # configured as a part of the dns config - this is configured by VirtualBox
-  SHP_NODE_IP='192.168.99.1'
+  SHP_NODE_IP=$VM_HOST_IP
 
   # change to this of using hyperkit
   # SHP_NODE_IP='192.168.64.1'
@@ -72,7 +91,7 @@ set_app_env() {
     export SHP_TEAM_NAME=$teamname
   fi
 
-  # configure application base folder - which has the pom.xml
+  # configure target deployment environment - this will determine the env. config. to be picked
   printf '\nSpecify the Service Hosting Platform Target Environment - local / dev / prod (default-local): '
   read targetenv
   if [ -z "$targetenv" ];
@@ -140,7 +159,7 @@ load_app_env_params() {
   cd $APP_BASEFLDR
 
   printf "\n4.1 Loading microservice GroupId, Name and Version from application pom\n"
-  export APP_GROUP_ID=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId | grep -v '\[')
+  export APP_GROUP_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId | grep -v '\[')
   export APP_NAME=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.artifactId | grep -v '\[')
   export APP_VERSION=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
 
@@ -229,7 +248,7 @@ build_ms_docker_image() {
   ## will mean that all docker commands will run effectively inside minikube
   printf "6.1 Starting creation of Docker Image for - "$APP_BASEFLDR/$APP_JAR"\n"
   # Create docker image of the application - use the standard java app docker file provided
-  $DOCKER_CMD build -f $SHP_HOME/service-platform-toolkit/docker-images/app-images/JavaAppDockerfile -t $APP_BASE_DOCKER_TAG --build-arg JAR_FILE=$APP_JAR $APP_BASEFLDR
+  $DOCKER_CMD build -f $SHP_HOME/service-platform-toolkit/docker-images/app-images/JavaAppDockerfile -t $APP_BASE_DOCKER_TAG --build-arg JAR_FILE=$APP_JAR $APP_BASEFLDR --build-arg SHP_DCR_REGISTRY=$SHP_DCR_REGISTRY
 
   printf "\n6.2 Docker image created - "$APP_BASE_DOCKER_TAG"\n"
 
@@ -296,7 +315,7 @@ generate_kube_config() {
 
   BASE_DEPLOY_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-deployment.yml
   BASE_SERVICE_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-service.yml
-  BASE_INGRESS_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-ingress.yml
+  BASE_INGRESS_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-ingress-path.yml
 
   APP_DEPLOY_YAML=$SHP_HOME/service-platform-operations/autogen-config/kube-yamls/$SHP_TEAM_NAME/$APP_NAME/app-deployment-$SHP_TARGET_ENV.yml
   APP_SERVICE_YAML=$SHP_HOME/service-platform-operations/autogen-config/kube-yamls/$SHP_TEAM_NAME/$APP_NAME/app-service-$SHP_TARGET_ENV.yml
@@ -341,7 +360,7 @@ print_microservice_domain() {
 
     printf '\n\n********************************************************************************'
     printf '\n***************             Microservice deployed to             ***************'
-    printf '\n*****    http://'$APP_NAME'.'$APP_SUBDOMAIN'.'$PLATFORM_BASE_DOMAIN'/   *****'
+    printf '\n*****    http://'$PLATFORM_BASE_DOMAIN'/'$APP_SUBDOMAIN'/'$APP_NAME'   *****'
     printf '\n********************************************************************************'
 
 }

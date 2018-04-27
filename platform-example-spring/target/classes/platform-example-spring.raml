@@ -1,0 +1,14 @@
+#%RAML 0.8
+baseUri: https://platform-example-spring-sct-api.ext-api-gw.cf.tp-dev-01.dev.aws.cloud/
+title: platform-example-spring-sct-api
+version: 1.0.0
+
+/hello:
+  get:
+    description: Say hello
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+                Hello World!

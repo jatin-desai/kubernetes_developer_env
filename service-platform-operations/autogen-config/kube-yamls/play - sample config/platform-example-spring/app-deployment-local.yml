@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: platform-example-spring
+  namespace: play
+spec:
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: platform-example-spring-app
+    spec:
+      containers:
+        - name: platform-example-spring
+          image: docker.for.mac.host.internal:5000/com.jade.samples/platform-example-spring:1.0.0
+          ports:
+          - containerPort: 8080
+          env:
+            - name: K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: APP_NAME
+              value: platform-example-spring
+            - name: POD_INST_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ENV_STAGE
+              value: local
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: WKR_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: WKR_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: LOGGING_LEVEL
+              value: DEBUG
+            - name: JAVA_OPTS
+              value: -Dappdynamics.http.proxyHost=proxy.server -Dappdynamics.http.proxyPort=80 -Dappdynamics.controller.hostName=test.saas.appdynamics.com -Dappdynamics.controller.port=443 -Dappdynamics.agent.accountName=test -Dappdynamics.agent.accountAccessKey=test -Dappdynamics.agent.applicationName=platform-example-spring -Dappdynamics.agent.tierName=Digital -Dappdynamics.agent.nodeName=KubeCluster-192.168.99.1-local -Dappdynamics.controller.ssl.enabled=true
+
+# this uses the shared hsbc docker registry

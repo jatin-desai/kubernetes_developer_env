@@ -25,10 +25,12 @@ echo_prereqs() {
     2. Configure docker to use the cntlm proxy
     3. copy the internal-root-ca.pem file from shp-hsbc-utils/security to $HOME/bin folder
     4. add internal-root-ca.pem to your docker config (“tlscacert” : “/Users/<userid>/bin/internal-root-ca.pem”)
-    5. Ensure that the DNS nameservice is configured at /etc/resolver/<domain> for your specific dns (e.g. local.service.platform)
-    Press enter to continue... Ctrl+C to exit
+    5. Ensure that the /etc/hosts file is updated mapping the minikube ip (192.168.99.100, if using vbox) to local.service.platform
   "
+  printf "\n Press enter to continue (Ctrl+C to exit)..... "
   read cont
+#   5. Ensure that the DNS nameservice is configured at /etc/resolver/<domain> for your specific dns (e.g. local.service.platform)
+
 
   printf "\n Do you want to configure cntlm proxy - (y/n) (default - y): ";read proxyflag
   if [[ $proxyflag != "n" ]]; then
@@ -36,6 +38,8 @@ echo_prereqs() {
   else
     USE_PROXY="n"
   fi
+
+  LOG_FILE=$(date "+%Y-%m-%d-%H-%M-%S").log
 
 }
 
@@ -45,25 +49,23 @@ clean_slate() {
   printf " Stage 1: Clean-up any existing minikube environment and dependent docker containers "
   printf '\n********************************************************************************\n'
 
-  echo "
-    This script will delete any existing minikube env and the existing service platform docker registry instance
-    Press enter to continue... Ctrl+C to exit
-  "
+  printf "\n This script will delete any existing minikube env and the existing service platform docker registry instance"
+  printf "\n Press enter to continue (Ctrl+C to exit)..... "
   read cleanup
 
   printf "\n Deleting minikube \n"
-  $MINIKUBE_CMD stop
-  $MINIKUBE_CMD delete
+  $MINIKUBE_CMD stop >> $LOG_FILE 2>&1
+  $MINIKUBE_CMD delete >> $LOG_FILE 2>&1
 
-  printf "\n\n Deleting DNS Server \n"
+  printf "\n Deleting DNS Server \n"
   DNS_CONT_ID=$(docker ps | grep serviceplatformdns | awk '{print $1}')
-  $DOCKER_CMD stop $DNS_CONT_ID
-  $DOCKER_CMD rm $DNS_CONT_ID
+  $DOCKER_CMD stop $DNS_CONT_ID >> $LOG_FILE 2>&1
+  $DOCKER_CMD rm $DNS_CONT_ID >> $LOG_FILE 2>&1
 
-  printf "\n\n Deleting local docker registry \n"
+  printf "\n Deleting local docker registry \n"
   REGISTRY_CONT_ID=$(docker ps | grep serviceplatformregistry | awk '{print $1}')
-  $DOCKER_CMD stop $REGISTRY_CONT_ID
-  $DOCKER_CMD rm $REGISTRY_CONT_ID
+  $DOCKER_CMD stop $REGISTRY_CONT_ID >> $LOG_FILE 2>&1
+  $DOCKER_CMD rm $REGISTRY_CONT_ID >> $LOG_FILE 2>&1
 
   printf '\n Clean Slate Complete ';read cont
 
@@ -81,31 +83,47 @@ set_env () {
 
   ## run this from the SHP base folder (~/sandbox/shp/gitrepo for me)
   # Set the shp base folder
-  printf "\n2.1 Setting up the Service Hosting Platform Home Folder" $(pwd) "\n"
-  SHP_HOME=$(pwd)
+  printf "\n 2.1 Setting up the Service Hosting Platform Home Folder" $(pwd) "\n"
+  export SHP_HOME=$(pushd $(dirname $0)/../.. >/dev/null ; echo ${PWD})
+  echo "SHP home: ${SHP_HOME}"
 
   SHP_DOMAIN_NAME="local.service.platform"
 
   # set docker registry env variable
-  printf "\n2.2 Setting docker registry at localhost(docker.for.mac.host.internal:5000) - for the local dev env. the registry will run on the host machine\n"
-  SHP_DOCKER_REGISTRY='docker.for.mac.host.internal:5000'
+  printf "\n 2.2 Setting docker registry at localhost(host.docker.internal:5000) - for the local dev env. the registry will run on the host machine\n"
+  SHP_DOCKER_REGISTRY='host.docker.internal:5000'
 
-  printf "\n2.3 Setting VM driver for minikube to virtualbox or hyperkit"
-  VM_DRIVER="virtualbox"
-  VM_HOST_IP='192.168.99.1'
+  printf "\n 2.3 Setting VM driver for minikube to virtualbox or hyperkit"
 
-  # VM_DRIVER="hyperkit"
-  # VM_DRIVER="hyperkit"
-  # VM_HOST_IP='192.168.64.1'
+  local read_vm_driver
+  printf "\n Note: If you plan to work remotely (over VPN), use virtualbox as the vm-driver\n"
+  read -p "Select the vm-driver to use - {H}yperkit or {V}irtualBox? (default - virtualbox) " read_vm_driver
+
+  case "${read_vm_driver}" in
+    "H"|"h")
+      VM_DRIVER="hyperkit"
+      VM_HOST_IP='192.168.64.1'
+      ;;
+    "V"|"v")
+      VM_DRIVER="virtualbox"
+      VM_HOST_IP='192.168.99.1'
+      ;;
+    *)
+      VM_DRIVER="virtualbox"
+      VM_HOST_IP='192.168.99.1'
+      ;;
+  esac
+
+  echo "Selected VM driver: '${VM_DRIVER}'"
 
   # the node ip used by docker within minikube to talk back to the host
   # configured as a part of the dns config
   # virtualbox host ip
 
-  printf "\n2.3 Configure proxy endpoint for minikube to point to host ip from minikube\n"
+  printf "\n 2.4 Configure proxy endpoint for minikube to point to host ip from minikube\n"
   SHP_NODE_IP=$VM_HOST_IP
   SHP_PROXY_URL=http://$SHP_NODE_IP:3128
-  NO_PROXY_URLS="docker.for.mac.host.internal,$SHP_NODE_IP,*.hsbc,*.platform"
+  NO_PROXY_URLS="host.docker.internal,$SHP_NODE_IP,*.hsbc,*.platform"
 
 
   printf '\n********************************************************************************\n'
@@ -119,11 +137,11 @@ setup_docker_registry() {
   printf "Stage 3: Initialize local Docker Registry (on host machine)"
   printf '\n********************************************************************************\n'
 
-  echo "\n3.1 Setting up local docker registry\n"
-  $DOCKER_COMPOSE_CMD -f $SHP_HOME/service-platform-toolkit/utils/docker-config/registry.yml -p service-platform-registry up --remove-orphans -d
+  printf "\n 3.1 Setting up local docker registry\n"
+  $DOCKER_COMPOSE_CMD -f $SHP_HOME/service-platform-toolkit/utils/docker-config/registry.yml -p service-platform-registry up --remove-orphans -d  >> $LOG_FILE
 
   # validate registry service is up and running
-  echo "3.2 Docker Registry status"
+  printf "\n 3.2 Docker Registry status"
   $DOCKER_CMD ps | grep registry
 
   printf '\n\n********************************************************************************\n'
@@ -141,7 +159,7 @@ init_minikube() {
   cd $SHP_HOME
 
   # start the minikube cluster
-  echo "\n4.1 Starting minikube"
+  printf "\n 4.1 Starting minikube"
 
 #  minikube start --insecure-registry localhost:5000
 
@@ -151,24 +169,24 @@ init_minikube() {
     PROXY_CONFIG= " "
   fi
   $MINIKUBE_CMD start --memory=6144 --vm-driver $VM_DRIVER \
-  --insecure-registry $SHP_DOCKER_REGISTRY $PROXY_CONFIG
+  --insecure-registry $SHP_DOCKER_REGISTRY $PROXY_CONFIG  >> $LOG_FILE
 
-  echo "\n4.2 minikube status"
+  printf "\n 4.2 minikube status"
   $MINIKUBE_CMD status
 
-  echo "\n4.3 Configure minikube to route docker requests to host ip - required by docker to pull images"
-  $MINIKUBE_CMD ssh "sudo sh -c 'echo $SHP_NODE_IP docker.for.mac.host.internal >> /etc/hosts'"
+  printf "\n 4.3 Configure minikube to route docker requests to host ip - required by docker to pull images"
+  $MINIKUBE_CMD ssh "sudo sh -c 'echo $SHP_NODE_IP host.docker.internal >> /etc/hosts'"
 
   # Enable ingress in minikube
-  echo "\n4.4 Enable Ingress Controller on minikube"
-  $MINIKUBE_CMD addons enable ingress
+  printf "\n 4.4 Enable Ingress Controller on minikube"
+  $MINIKUBE_CMD addons enable ingress >> $LOG_FILE
 
 
-  printf '\nMinikube created; Press Enter to continue...';read cont
+  printf '\n Minikube created; Press Enter to continue...';read cont
 
   # list all containers and services in the kubernetes cluster
-  printf "\n4.5 Kubernetes cluster initializing\n"
-  $KUBECTL_CMD get pods,services --all-namespaces
+  printf "\n 4.5 Kubernetes cluster initializing\n"
+  $KUBECTL_CMD get pods,services,ingress -n=kube-system
 
   printf '\n\n********************************************************************************\n'
   printf "Stage 4 Kubernetes Cluster Initialization COMPLETE"
@@ -176,35 +194,10 @@ init_minikube() {
 
 }
 
-setup_dns() {
-
-  printf '\n\n********************************************************************************\n'
-  printf "Stage 5: Setup local DNS Server"
-  printf '\n********************************************************************************\n'
-
-  # each platform instance will have a base domain - e.g. local.service.platform
-  # further each namespace will have it's own subdomain - with the same name
-
-  # Setup DNS resolution to the minikube cluster
-
-  echo "Ensure that the dns nameserver is configured at /etc/resolver/<minikube base domain> pointing to 127.0.0.1"
-  echo "e.g. script : echo nameserver 127.0.0.1 >> local.service.platform"
-  echo "Press enter to continue... "
-  read cont
-
-  printf "\n Creating DNS Server Docker container\n"
-  MINIKUBE_IP=$(minikube ip) SHP_NODE_IP=$SHP_NODE_IP SHP_DOMAIN_NAME=$SHP_DOMAIN_NAME $DOCKER_COMPOSE_CMD -f $SHP_HOME/service-platform-toolkit/utils/docker-config/dns.yml -p service-platform-dns up -d
-
-  printf '\n\n********************************************************************************\n'
-  printf "Stage 5: DNS Server Setup COMPLETE"
-  printf '\n********************************************************************************\n'
-
-}
-
 configure_dashboard(){
 
   printf '\n\n********************************************************************************\n'
-  printf "Stage 6: Configure Kubernetes Dashboard"
+  printf "Stage 5: Configure Kubernetes Dashboard"
   printf '\n********************************************************************************\n'
 
   # the subdomain for kube-system and other kubernetes system services will be system.<base domain> - system.local.service.platform - for me
@@ -221,7 +214,7 @@ configure_dashboard(){
   #curl -X GET http://system.local.service.platform/dashboard
 
   printf '\n\n********************************************************************************\n'
-  printf "Stage 6: Kubernetes Dashboard Config COMPLETE"
+  printf "Stage 5: Kubernetes Dashboard Config COMPLETE"
   printf '\n********************************************************************************\n'
 
 }
@@ -230,23 +223,18 @@ configure_dashboard(){
 configure_fluentd_elasticsearch_kibana() {
 
   printf '\n\n********************************************************************************\n'
-  printf "Stage 7: Configure Platform Services - Logging "
+  printf "Stage 6: Configure Platform Services - Logging "
   printf '\n********************************************************************************\n'
 
 
   cd $SHP_HOME/service-platform-toolkit/utils/kube-config/services/logging
-  printf "\n7.1 Setting up elasticsearch \n"
-  $KUBECTL_CMD apply -f es-kibana/es-controller.yaml
-  $KUBECTL_CMD apply -f es-kibana/es-service.yaml
+  printf "\n6.1 Setting up elasticsearch \n"
+  $KUBECTL_CMD apply -f es-kibana/elasticsearch.yaml
 
-  printf "\n7.2 Setting up kibana \n"
-  $KUBECTL_CMD apply -f es-kibana/kibana-controller.yaml
-  $KUBECTL_CMD apply -f es-kibana/kibana-service.yaml
+  printf "\n6.2 Setting up kibana - - http://local.service.platform/kibana-ui \n"
+  $KUBECTL_CMD apply -f es-kibana/kibana-path.yaml
 
-  printf "\n7.3 Configuring Kibana route - http://kibana.platform.local.service.platform/ \n"
-  $KUBECTL_CMD apply -f es-kibana/kibana-ingress-domain.yml
-
-  printf "\n7.4 Configuring fluentd daemonset \n"
+  printf "\n6.4 Configuring fluentd daemonset \n"
   # Set 1 - k8s system logging to es-kibana; platform services and app logging to syslog
   $KUBECTL_CMD apply -f fluentd/es-sl/fluentd-configmap-elasticsearch-syslog.yaml
   $KUBECTL_CMD apply -f fluentd/es-sl/fluentd-daemonset-elasticsearch-syslog.yaml
@@ -261,19 +249,39 @@ configure_fluentd_elasticsearch_kibana() {
 
 
   printf '\n\n********************************************************************************\n'
-  printf "Stage 7: Platform Services Config COMPLETE "
+  printf "Stage 6: Platform Services Config COMPLETE "
   printf '\n********************************************************************************\n'
 
 }
 
+
+setup_vpn_context() {
+
+  if [[ $VM_DRIVER == "virtualbox" ]]; then
+    VBoxManage controlvm minikube natpf1 kube-apiserver,tcp,127.0.0.1,8443,,8443
+    VBoxManage controlvm minikube natpf1 kube-dashboard,tcp,127.0.0.1,30000,,30000
+    VBoxManage controlvm minikube natpf1 kube-docker,tcp,127.0.0.1,2376,,2376
+    VBoxManage controlvm minikube natpf1 kube-ingress,tcp,127.0.0.1,80,,80
+
+    # create a minikube-vpn context and configure the api server to use the localhost:8443 endpoint
+    kubectl config set-cluster minikube-vpn --server=https://127.0.0.1:8443 --insecure-skip-tls-verify
+    kubectl config set-context minikube-vpn --cluster=minikube-vpn --user=minikube
+  fi
+
+
+}
 
 echo_setup_complete() {
   printf '\n\n********************************************************************************'
   printf '\n***************     Service Hosting Platform - Up and Running    ***************'
   printf '\n********************************************************************************'
   printf '\n***************   Platform Base Domain: local.service.platform   ***************'
-  printf '\n*******  Dashboard URL: http://dashboard.system.local.service.platform   *******'
-  printf '\n*******  Kibana Dashboard: http://kibana.system.local.service.platform   ******'
+  printf '\n**********  Dashboard URL: http://local.service.platform/dashboard   ***********'
+  printf '\n**********  Kibana Dashboard: http://local.service.platform/kibana-ui   ***********'
+  printf '\n********************************************************************************'
+  printf '\n***********  When working over VPN, change the kubectl context  ***************'
+  printf '\n********  (only applicable if you are using virtualbox vm-driver)  ************'
+  printf '\n**************  kubectl config use-context minikube-vpn  *********************'
   printf '\n********************************************************************************\n\n'
 }
 
@@ -284,7 +292,7 @@ clean_slate
 set_env
 setup_docker_registry
 init_minikube
-setup_dns
 configure_dashboard
 configure_fluentd_elasticsearch_kibana
+setup_vpn_context
 echo_setup_complete

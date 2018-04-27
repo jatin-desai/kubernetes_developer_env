@@ -10,7 +10,8 @@ set_env () {
   ## run this from the SHP base folder (~/sandbox/shp/gitrepo for me)
   # Set the shp base folder
   printf "\n1.1 Setting up the Service Hosting Platform Home Folder" $(pwd)
-  SHP_HOME=$(pwd)
+  export SHP_HOME=$(pushd $(dirname $0)/../.. >/dev/null ; echo ${PWD})
+  echo "SHP home: ${SHP_HOME}"
 
   printf "\n Do you want to configure cntlm proxy - (y/n) (default - y): ";read proxyflag
   if [[ $proxyflag != "n" ]]; then
@@ -20,8 +21,8 @@ set_env () {
   fi
 
   # set docker registry env variable
-  printf "\n1.2 Setting docker registry at localhost(docker.for.mac.host.internal:5000) - for the local dev env. the registry will run on the host machine"
-  SHP_DOCKER_REGISTRY='docker.for.mac.host.internal:5000'
+  printf "\n1.2 Setting docker registry at localhost(host.docker.internal:5000) - for the local dev env. the registry will run on the host machine"
+  SHP_DOCKER_REGISTRY='host.docker.internal:5000'
 
   # the node ip used by docker within minikube to talk back to the host
   # configured as a part of the dns config - this is configured by VirtualBox
@@ -60,10 +61,15 @@ build_docker_base_image() {
   APPD_AGENT=appd_agent.tar
   CERT_KEYSTORE=internal-certs-dummy.jks
 
+  # NOTE : this will need to be externalized and point to the correct password for the keystore being specified
+  KEYSTORE_PASSWORD="changeme"
+
   cp $SHP_HOME/shp-hsbc-utils/appd/$APPD_AGENT .
   cp $SHP_HOME/shp-hsbc-utils/security/$CERT_KEYSTORE .
 
-  docker build -f JavaBaseDockerfile -t $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine --build-arg APPD_AGENT=$APPD_AGENT --build-arg CERT_KEYSTORE=$CERT_KEYSTORE .
+  DOCKER_BUILD_ARGS="--build-arg APPD_AGENT=$APPD_AGENT --build-arg CERT_KEYSTORE=$CERT_KEYSTORE --build-arg KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+
+  docker build -f JavaBaseDockerfile -t $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine $DOCKER_BUILD_ARGS .
 
   # push image to docker repository
   docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine

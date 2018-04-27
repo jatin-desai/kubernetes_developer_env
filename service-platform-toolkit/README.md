@@ -1,10 +1,6 @@
 # service-platform-toolkit
 
 
+[Service Hosting Platform Documentation](./docs/0.shp-doc-toc.md)
 
-fluentd - base config - https://github.com/fluent/fluentd-kubernetes-daemonset
-fluentd: Syslog plugin - https://github.com/dlackty/fluent-plugin-remote_syslog / https://github.com/docebo/fluent-plugin-remote-syslog
-
-elasticsearch/kibana base config - https://github.com/inovex/kubernetes-logging
-
-fluentd ref - https://medium.com/@joatmon08/application-logging-in-kubernetes-with-fluentd-4556f1573672
+[Service Hosting Platform - Confluence](https://digital-confluence.systems.uk.hsbc/confluence/display/SHP/Migrating+an+existing+PCF+microservice+to+Kubernetes+-+Skunk+Works)

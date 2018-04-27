@@ -7,7 +7,8 @@ set_env() {
   printf "Stage 1 Setting working env"
   printf '\n********************************************************************************\n'
 
-  export SHP_HOME=$(pwd)
+  export SHP_HOME=$(pushd $(dirname $0)/../.. >/dev/null ; echo ${PWD})
+  echo "SHP home: ${SHP_HOME}"
 
   printf '\n\n********************************************************************************\n'
   printf " Stage 1 COMPLETE "
@@ -28,7 +29,7 @@ collect_config() {
   # - it should be a one-to-one mapping
   # TBC - should the namespace and the subdomain name be the same ?
   printf "\n2.1 Define the XFT / Product team Namespace"
-  printf "\nThere should ideally be a one-to-one mapping between the namespace and domain."
+  printf "\nThere should ideally be a one-to-one mapping between the namespace and base path."
   printf "\nIf teams want them to be different, it can be configured in the product line config\n"
 
   printf '\nSpecify kubernetes namespace for the team - default is play: '; read nmsp ;
@@ -39,7 +40,7 @@ collect_config() {
     K8S_NAMESPACE=$nmsp
   fi
 
-  printf '\nSpecify kubernetes sub-domain for the team - default is '$K8S_NAMESPACE' : '; read dmn ;
+  printf '\nSpecify kubernetes domain base path for the team - default is '$K8S_NAMESPACE' : '; read dmn ;
   if [ -z "$dmn" ];
   then
     SUB_DOMAIN=$K8S_NAMESPACE

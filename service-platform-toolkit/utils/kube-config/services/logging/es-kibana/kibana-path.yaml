@@ -1,0 +1,68 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kibana-ingress-path
+  namespace: kube-system
+  annotations:
+    nginx.org/server-snippet: "proxy_ssl_verify off;"
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+spec:
+  rules:
+  - host: local.service.platform
+    http:
+      paths:
+      - backend:
+          serviceName: kibana-logging-path
+          servicePort: 5601
+        path: /kibana-ui
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-logging-path
+  namespace: kube-system
+  labels:
+    k8s-app: kibana-logging-path
+    #kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: "Kibana"
+spec:
+  ports:
+  - port: 5601
+    protocol: TCP
+    targetPort: 5601
+  selector:
+    k8s-app: kibana-logging-path
+  type:
+    NodePort
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kibana-logging-path-v2
+  namespace: kube-system
+  labels:
+    k8s-app: kibana-logging-path
+    version: v2
+    #kubernetes.io/cluster-service: "true"
+spec:
+  replicas: 1
+  selector:
+    k8s-app: kibana-logging-path
+    version: v2
+  template:
+    metadata:
+      labels:
+        k8s-app: kibana-logging-path
+        version: v2
+        #kubernetes.io/cluster-service: "true"
+    spec:
+      containers:
+      - name: kibana-logging-path
+        image: jatindesai/kibana:4.6.6-uipath
+        env:
+          - name: "ELASTICSEARCH_URL"
+            value: "http://elasticsearch-logging:9200"
+        ports:
+        - containerPort: 5601
+          name: ui
+          protocol: TCP
