@@ -39,8 +39,12 @@ echo_prereqs() {
     USE_PROXY="n"
   fi
 
-  LOG_FILE=$(date "+%Y-%m-%d-%H-%M-%S").log
+  LOG_FILE=$(cat logfilename.log)
+  rm -r $LOG_FILE
+  rm -r logfilename.log
 
+  LOG_FILE=$(date "+%Y-%m-%d-%H-%M-%S").log
+  echo $LOG_FILE >> logfilename.log
 }
 
 clean_slate() {
@@ -114,7 +118,7 @@ set_env () {
       ;;
   esac
 
-  echo "Selected VM driver: '${VM_DRIVER}'"
+  printf "\n Selected VM driver: '${VM_DRIVER}' \n"
 
   # the node ip used by docker within minikube to talk back to the host
   # configured as a part of the dns config
@@ -205,9 +209,9 @@ setup_dns() {
 
   # Setup DNS resolution to the minikube cluster
 
-  echo "Ensure that the dns nameserver is configured at /etc/resolver/<minikube base domain> pointing to 127.0.0.1"
-  echo "e.g. script : echo nameserver 127.0.0.1 >> local.service.platform"
-  echo "Press enter to continue... "
+  printf "\n Ensure that the dns nameserver is configured at /etc/resolver/<minikube base domain> pointing to 127.0.0.1"
+  printf "\n e.g. script : echo nameserver 127.0.0.1 >> local.service.platform"
+  printf "\n Press enter to continue... "
   read cont
 
   printf "\n Creating DNS Server Docker container\n"

@@ -248,7 +248,7 @@ build_ms_docker_image() {
   ## will mean that all docker commands will run effectively inside minikube
   printf "6.1 Starting creation of Docker Image for - "$APP_BASEFLDR/$APP_JAR"\n"
   # Create docker image of the application - use the standard java app docker file provided
-  $DOCKER_CMD build -f $SHP_HOME/service-platform-toolkit/docker-images/app-images/JavaAppDockerfile -t $APP_BASE_DOCKER_TAG --build-arg SHP_DCR_REGISTRY=$SHP_DCR_REGISTRY --build-arg JAR_FILE=$APP_JAR $APP_BASEFLDR
+  $DOCKER_CMD build -f $SHP_HOME/service-platform-toolkit/docker-images/app-images/JavaAppDockerfile -t $APP_BASE_DOCKER_TAG --build-arg SHP_DCR_REGISTRY=$SHP_DCR_REGISTRY --build-arg JAR_FILE=$APP_JAR $APP_BASEFLDR 
 
   printf "\n6.2 Docker image created - "$APP_BASE_DOCKER_TAG"\n"
 
@@ -315,7 +315,7 @@ generate_kube_config() {
 
   BASE_DEPLOY_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-deployment.yml
   BASE_SERVICE_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-service.yml
-  BASE_INGRESS_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-ingress-path.yml
+  BASE_INGRESS_YAML=$SHP_HOME/service-platform-operations/base-config/kube-yamls/microservice-ingress-domain.yml
 
   APP_DEPLOY_YAML=$SHP_HOME/service-platform-operations/autogen-config/kube-yamls/$SHP_TEAM_NAME/$APP_NAME/app-deployment-$SHP_TARGET_ENV.yml
   APP_SERVICE_YAML=$SHP_HOME/service-platform-operations/autogen-config/kube-yamls/$SHP_TEAM_NAME/$APP_NAME/app-service-$SHP_TARGET_ENV.yml
@@ -360,7 +360,7 @@ print_microservice_domain() {
 
     printf '\n\n********************************************************************************'
     printf '\n***************             Microservice deployed to             ***************'
-    printf '\n*****    http://'$PLATFORM_BASE_DOMAIN'/'$APP_SUBDOMAIN'/'$APP_NAME'   *****'
+    printf '\n*****    http://'$APP_NAME'.'$APP_SUBDOMAIN'.'$PLATFORM_BASE_DOMAIN'/   *****'
     printf '\n********************************************************************************'
 
 }

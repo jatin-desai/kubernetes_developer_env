@@ -39,8 +39,12 @@ echo_prereqs() {
     USE_PROXY="n"
   fi
 
-  LOG_FILE=$(date "+%Y-%m-%d-%H-%M-%S").log
+  LOG_FILE=$(cat logfilename.log)
+  rm -r $LOG_FILE
+  rm -r logfilename.log
 
+  LOG_FILE=$(date "+%Y-%m-%d-%H-%M-%S").log
+  echo $LOG_FILE >> logfilename.log
 }
 
 clean_slate() {
@@ -166,7 +170,7 @@ init_minikube() {
   if [[ $USE_PROXY == "y" ]]; then
     PROXY_CONFIG=" --docker-env HTTP_PROXY=$SHP_PROXY_URL --docker-env HTTPS_PROXY=$SHP_PROXY_URL --docker-env NO_PROXY=$NO_PROXY_URLS"
   else
-    PROXY_CONFIG= " "
+    unset PROXY_CONFIG
   fi
   $MINIKUBE_CMD start --memory=6144 --vm-driver $VM_DRIVER \
   --insecure-registry $SHP_DOCKER_REGISTRY $PROXY_CONFIG  >> $LOG_FILE
@@ -276,7 +280,7 @@ echo_setup_complete() {
   printf '\n***************     Service Hosting Platform - Up and Running    ***************'
   printf '\n********************************************************************************'
   printf '\n***************   Platform Base Domain: local.service.platform   ***************'
-  printf '\n**********  Dashboard URL: http://local.service.platform/dashboard   ***********'
+  printf '\n**********  Dashboard URL: http://local.service.platform/dashboard/   ***********'
   printf '\n**********  Kibana Dashboard: http://local.service.platform/kibana-ui   ***********'
   printf '\n********************************************************************************'
   printf '\n***********  When working over VPN, change the kubectl context  ***************'

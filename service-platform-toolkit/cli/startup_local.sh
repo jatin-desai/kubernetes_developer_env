@@ -61,7 +61,7 @@ printf "\n2.6 Starting minikube"
 if [[ $USE_PROXY == "y" ]]; then
   PROXY_CONFIG=" --docker-env HTTP_PROXY=$SHP_PROXY_URL --docker-env HTTPS_PROXY=$SHP_PROXY_URL --docker-env NO_PROXY=$NO_PROXY_URLS"
 else
-  PROXY_CONFIG= " "
+  unset PROXY_CONFIG
 fi
 minikube start --memory=6144 --vm-driver $VM_DRIVER \
 --insecure-registry $SHP_DOCKER_REGISTRY $PROXY_CONFIG

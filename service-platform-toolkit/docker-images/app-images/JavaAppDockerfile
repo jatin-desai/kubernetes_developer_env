@@ -1,8 +1,8 @@
 ARG SHP_DCR_REGISTRY
-ARG JAR_FILE
 
 FROM ${SHP_DCR_REGISTRY}/digital/shp-openjdk:8-jdk-alpine
 
+ARG JAR_FILE
 ADD ${JAR_FILE} app.jar
 
 #invoke via entrypoint file

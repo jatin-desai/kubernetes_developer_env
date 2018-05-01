@@ -24,9 +24,32 @@ set_env () {
   printf "\n1.2 Setting docker registry at localhost(host.docker.internal:5000) - for the local dev env. the registry will run on the host machine"
   SHP_DOCKER_REGISTRY='host.docker.internal:5000'
 
+
+  printf "\n 2.3 Setting VM driver for minikube to virtualbox or hyperkit \n"
+  local read_vm_driver
+  read -p "Select the vm-driver to use - {H}yperkit or {V}irtualBox? (default - virtualbox) " read_vm_driver
+
+  case "${read_vm_driver}" in
+    "H"|"h")
+      VM_DRIVER="hyperkit"
+      VM_HOST_IP='192.168.64.1'
+      ;;
+    "V"|"v")
+      VM_DRIVER="virtualbox"
+      VM_HOST_IP='192.168.99.1'
+      ;;
+    *)
+      VM_DRIVER="virtualbox"
+      VM_HOST_IP='192.168.99.1'
+      ;;
+  esac
+
   # the node ip used by docker within minikube to talk back to the host
-  # configured as a part of the dns config - this is configured by VirtualBox
-  SHP_NODE_IP='192.168.99.1'
+  # configured as a part of the dns config
+  # virtualbox host ip
+
+  printf "\n 2.4 Configure proxy endpoint for minikube to point to host ip from minikube\n"
+  SHP_NODE_IP=$VM_HOST_IP
 
   SHP_PROXY_URL=http://$SHP_NODE_IP:3128
 
