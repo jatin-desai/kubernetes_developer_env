@@ -3,3 +3,6 @@ prometheus design - https://coreos.com/operators/prometheus/docs/latest/design.h
 understanding operators - https://coreos.com/blog/introducing-operators.html
 
 Kubernetes concepts - https://www.mirantis.com/blog/kubernetes-replication-controller-replica-set-and-deployments-understanding-replication-options/
+
+
+prometheus getting started - https://coreos.com/operators/prometheus/docs/latest/user-guides/getting-started.html
