@@ -159,7 +159,8 @@ load_app_env_params() {
   cd $APP_BASEFLDR
 
   printf "\n4.1 Loading microservice GroupId, Name and Version from application pom\n"
-  export APP_GROUP_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId | grep -v '\[')
+  mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId
+  export APP_GROUP_ID=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.groupId | grep -v '\[')
   export APP_NAME=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.artifactId | grep -v '\[')
   export APP_VERSION=$(mvn -o org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\[')
 
@@ -248,7 +249,7 @@ build_ms_docker_image() {
   ## will mean that all docker commands will run effectively inside minikube
   printf "6.1 Starting creation of Docker Image for - "$APP_BASEFLDR/$APP_JAR"\n"
   # Create docker image of the application - use the standard java app docker file provided
-  $DOCKER_CMD build -f $SHP_HOME/service-platform-toolkit/docker-images/app-images/JavaAppDockerfile -t $APP_BASE_DOCKER_TAG --build-arg SHP_DCR_REGISTRY=$SHP_DCR_REGISTRY --build-arg JAR_FILE=$APP_JAR $APP_BASEFLDR 
+  $DOCKER_CMD build -f $SHP_HOME/service-platform-toolkit/docker-images/app-images/JavaAppDockerfile -t $APP_BASE_DOCKER_TAG --build-arg SHP_DCR_REGISTRY=$SHP_DCR_REGISTRY --build-arg JAR_FILE=$APP_JAR $APP_BASEFLDR
 
   printf "\n6.2 Docker image created - "$APP_BASE_DOCKER_TAG"\n"
 

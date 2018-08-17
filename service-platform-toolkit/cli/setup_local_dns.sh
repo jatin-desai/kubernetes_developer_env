@@ -9,6 +9,7 @@ echo_prereqs() {
   printf "\n Is this a dry run : default=n "; read dryrun
 
   if [[ $dryrun == "y" ]]; then
+    echo "configuring dry run"; read
     MINIKUBE_CMD="echo minikube"
     DOCKER_CMD="echo docker"
     DOCKER_COMPOSE_CMD="echo docker-compose"
@@ -32,11 +33,11 @@ echo_prereqs() {
 #   5. Ensure that the DNS nameservice is configured at /etc/resolver/<domain> for your specific dns (e.g. local.service.platform)
 
 
-  printf "\n Do you want to configure cntlm proxy - (y/n) (default - y): ";read proxyflag
-  if [[ $proxyflag != "n" ]]; then
-    USE_PROXY="y"
-  else
+  printf "\n Do you want to configure cntlm proxy - (y/n) (default - n): ";read proxyflag
+  if [[ $proxyflag != "y" ]]; then
     USE_PROXY="n"
+  else
+    USE_PROXY="y"
   fi
 
   LOG_FILE=$(cat logfilename.log)
@@ -145,7 +146,7 @@ setup_docker_registry() {
   $DOCKER_COMPOSE_CMD -f $SHP_HOME/service-platform-toolkit/utils/docker-config/registry.yml -p service-platform-registry up --remove-orphans -d >> $LOG_FILE
 
   # validate registry service is up and running
-  printf "\n 3.2 Docker Registry status"
+  printf "\n 3.2 Docker Registry status\n"
   $DOCKER_CMD ps | grep registry
 
   printf '\n\n********************************************************************************\n'
@@ -163,14 +164,14 @@ init_minikube() {
   cd $SHP_HOME
 
   # start the minikube cluster
-  printf "\n 4.1 Starting minikube"
+  printf "\n 4.1 Starting minikube\n"
 
 #  minikube start --insecure-registry localhost:5000
 
   if [[ $USE_PROXY == "y" ]]; then
     PROXY_CONFIG=" --docker-env HTTP_PROXY=$SHP_PROXY_URL --docker-env HTTPS_PROXY=$SHP_PROXY_URL --docker-env NO_PROXY=$NO_PROXY_URLS"
   else
-    PROXY_CONFIG= " "
+    PROXY_CONFIG=" "
   fi
   $MINIKUBE_CMD start --memory=6144 --vm-driver $VM_DRIVER \
   --insecure-registry $SHP_DOCKER_REGISTRY $PROXY_CONFIG >> $LOG_FILE

@@ -1,16 +1,5 @@
 FROM openjdk:8-jdk-alpine
 VOLUME /tmp
-ARG APPD_AGENT
-ARG CERT_KEYSTORE
-ARG KEYSTORE_PASSWORD
-
-# Add AppDynamics Agent
-ADD ${APPD_AGENT} appd_agent.tar
-RUN mv ./appd_agent.tar/AppServerAgent-4.2.15.18/ /appdynamics
-
-# TBD - certs placeholder
-ADD ${CERT_KEYSTORE} keystore.jks
-
 
 #configure entrypoint file
 COPY entrypoint.sh /entrypoint.sh

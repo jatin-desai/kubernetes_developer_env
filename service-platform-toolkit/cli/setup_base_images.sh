@@ -13,11 +13,11 @@ set_env () {
   export SHP_HOME=$(pushd $(dirname $0)/../.. >/dev/null ; echo ${PWD})
   echo "SHP home: ${SHP_HOME}"
 
-  printf "\n Do you want to configure cntlm proxy - (y/n) (default - y): ";read proxyflag
-  if [[ $proxyflag != "n" ]]; then
-    USE_PROXY="y"
-  else
+  printf "\n Do you want to configure cntlm proxy - (y/n) (default - n): ";read proxyflag
+  if [[ $proxyflag != "y" ]]; then
     USE_PROXY="n"
+  else
+    USE_PROXY="y"
   fi
 
   # set docker registry env variable
@@ -81,16 +81,16 @@ build_docker_base_image() {
   echo "\n setting the docker env. config to point to minikube"
   eval $(minikube docker-env)
 
-  APPD_AGENT=appd_agent.tar
-  CERT_KEYSTORE=internal-certs-dummy.jks
+  # APPD_AGENT=appd_agent.tar
+  # ERT_KEYSTORE=internal-certs-dummy.jks
 
   # NOTE : this will need to be externalized and point to the correct password for the keystore being specified
   KEYSTORE_PASSWORD="changeme"
 
-  cp $SHP_HOME/shp-hsbc-utils/appd/$APPD_AGENT .
+  # cp $SHP_HOME/shp-hsbc-utils/appd/$APPD_AGENT .
   cp $SHP_HOME/shp-hsbc-utils/security/$CERT_KEYSTORE .
 
-  DOCKER_BUILD_ARGS="--build-arg APPD_AGENT=$APPD_AGENT --build-arg CERT_KEYSTORE=$CERT_KEYSTORE --build-arg KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+  # DOCKER_BUILD_ARGS="--build-arg APPD_AGENT=$APPD_AGENT --build-arg CERT_KEYSTORE=$CERT_KEYSTORE --build-arg KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
 
   docker build -f JavaBaseDockerfile -t $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine $DOCKER_BUILD_ARGS .
 
@@ -98,8 +98,8 @@ build_docker_base_image() {
   docker tag $SHP_BASE_REPO/shp-openjdk:8-jdk-alpine $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
   docker push $SHP_DOCKER_REGISTRY/$SHP_BASE_REPO/shp-openjdk:8-jdk-alpine
 
-  rm $CERT_KEYSTORE
-  rm $APPD_AGENT
+  # rm $CERT_KEYSTORE
+  # rm $APPD_AGENT
 
 }
 

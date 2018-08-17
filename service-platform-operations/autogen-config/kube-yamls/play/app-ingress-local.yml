@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: -domain
+  namespace: play
+spec:
+  rules:
+  - host: .play.local.service.platform
+    http:
+      paths:
+      - backend:
+          serviceName: 
+          servicePort: 8080
+        path: /
